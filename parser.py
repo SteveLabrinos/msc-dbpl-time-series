@@ -1,36 +1,49 @@
+import pandas as pd
+
+
 def in_thematic_area(phd_title: str) -> bool:
     area_keywords = ["information retrieval", "information extraction", "search engine",
                      "information overload", "text retrieval", "digital libraries",
                      "information seeking", "retrieval method", "web search",
                      "retrieval systems", "ir system", "ir model"]
 
+    area_keywords = ["database", "information"]
+
     return any(keyword in phd_title for keyword in area_keywords)
 
 
-try:
-    file = open("./input/dblp-2021-02-01.xml")
-except FileNotFoundError as e:
-    print(f"Error opening the file: {e}")
-    exit(-1)
-else:
-    year_counts = dict()
-    valid = False
+def parse_xml(file_path: str) -> list:
+    try:
+        file = open(file_path)
+    except FileNotFoundError as e:
+        print(f"Error opening the file: {e}")
+        exit(-1)
+    else:
+        year_counts = dict()
+        phd_valid = False
 
-    for line in file:
-        if line.startswith("<title>"):
-            phd_valid = in_thematic_area(line[7:len(line) - 9].lower())
+        for line in file:
+            if line.startswith("<title>"):
+                phd_valid = in_thematic_area(line[7:len(line) - 9].lower())
 
-        if line.startswith("<year>") and phd_valid:
-            year = line[6:10]
-            year_counts[year] = year_counts.get(year, 0) + 1
-            valid = False
+            if line.startswith("<year>") and phd_valid:
+                year = line[6:10] + "-12-31"
+                year_counts[year] = year_counts.get(year, 0) + 1
+                phd_valid = False
 
-    year_counts = dict(sorted(year_counts.items()))
+        year_counts = sorted(year_counts.items())
 
-    for k, v in year_counts.items():
-        print(f"Key: {k}\tValue: {v}")
+        print(f"Total titles found in file: {str(sum([year[1] for year in year_counts]))}")
 
-    print(f"Total titles found: {sum(year_counts.values())}")
+        return year_counts
+
+
+test = pd.DataFrame(parse_xml("./input/sample.xml"), columns=["date", "publications"])
+#
+# test.date = pd.to_datetime(test.date)
+# test.set_index("date", inplace=True)
+# test = test.asfreq('a')
+print(test)
 
 
 

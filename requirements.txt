@@ -1,0 +1,7 @@
+matplotlib~=3.3.4
+pandas~=1.2.3
+seaborn
+statsmodels~=0.12.2
+pmdarima
+scipy
+numpy
