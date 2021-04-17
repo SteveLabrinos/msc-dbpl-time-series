@@ -9,17 +9,17 @@ def in_thematic_area(phd_title: str) -> bool:
 
 def parse_xml(file_path: str) -> list:
     try:
-        file = open(file_path, "r")
+        r_file_handler = open(file_path, "r")
     except FileNotFoundError as e:
-        print(f"Error opening the file: {e}")
+        print(f"Error opening the r_file_handler: {e}")
         exit(-1)
     else:
         year_counts = dict()
         phd_valid = False
-        title_tag = ("<title>", "</title>")
-        year_tag = ("<year>", "</year>")
+        title_tag = "<title>", "</title>"
+        year_tag = "<year>", "</year>"
 
-        for line in file:
+        for line in r_file_handler:
             if any(tag in line for tag in title_tag):
                 phd_valid = in_thematic_area(line.lower())
             elif phd_valid and any(tag in line for tag in year_tag):
@@ -28,6 +28,18 @@ def parse_xml(file_path: str) -> list:
                 phd_valid = False
 
         year_counts = sorted(year_counts.items())
-        print(f"Total titles found in file: {str(sum([year[1] for year in year_counts]))}")
+
+        w_file_handler = open("output.txt", "w")
+        publications_cnt = 0
+        for publications in year_counts:
+            w_file_handler.write(f"{publications[0]}\t{publications[1]}\n")
+            publications_cnt += publications[1]
+        print(f"Total titles found in r_file_handler: {str(publications_cnt)}")
+
+        r_file_handler.close()
+        w_file_handler.close()
 
         return year_counts
+
+
+parse_xml("./input/dblp-2021-02-01.xml")
